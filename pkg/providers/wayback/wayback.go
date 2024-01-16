@@ -3,6 +3,7 @@ package wayback
 import (
 	"context"
 	"fmt"
+	"math"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/lc/gau/v2/pkg/httpclient"
 	"github.com/lc/gau/v2/pkg/providers"
@@ -41,7 +42,12 @@ func (c *Client) Fetch(ctx context.Context, domain string, results chan string) 
 		return fmt.Errorf("failed to fetch wayback pagination: %s", err)
 	}
 
-	for page := uint(0); page < pages; page++ {
+    max_pages := c.config.Pages
+	result_pages := uint(pages)
+	if max_pages != 0 {
+	    result_pages = uint(math.Min(float64(max_pages), float64(result_pages)))
+	}
+	for page := uint(0); page < result_pages; page++ {
 		select {
 		case <-ctx.Done():
 			return nil

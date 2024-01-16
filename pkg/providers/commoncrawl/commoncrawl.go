@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"math"
 	"errors"
 	"fmt"
 
@@ -63,8 +64,13 @@ func (c *Client) Fetch(ctx context.Context, domain string, results chan string) 
 		logrus.WithFields(logrus.Fields{"provider": Name}).Infof("no results for %s", domain)
 		return nil
 	}
+    max_pages := c.config.Pages
+	result_pages := uint(p.Pages)
+	if max_pages != 0 {
+	    result_pages = uint(math.Min(float64(max_pages), float64(result_pages)))
+	}
 
-	for page := uint(0); page < p.Pages; page++ {
+	for page := uint(0); page < result_pages; page++ {
 		select {
 		case <-ctx.Done():
 			return nil

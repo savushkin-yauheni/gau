@@ -28,6 +28,7 @@ type Config struct {
 	Filters           providers.Filters `mapstructure:"filters"`
 	Proxy             string            `mapstructure:"proxy"`
 	Threads           uint              `mapstructure:"threads"`
+	Pages             uint              `mapstructure:"pages"`
 	Timeout           uint              `mapstructure:"timeout"`
 	Verbose           bool              `mapstructure:"verbose"`
 	MaxRetries        uint              `mapstructure:"retries"`
@@ -63,6 +64,7 @@ func (c *Config) ProviderConfig() (*providers.Config, error) {
 		Threads:           c.Threads,
 		Timeout:           c.Timeout,
 		MaxRetries:        c.MaxRetries,
+		Pages:             c.Pages,
 		IncludeSubdomains: c.IncludeSubdomains,
 		RemoveParameters:  c.RemoveParameters,
 		Client: &fasthttp.Client{
@@ -101,6 +103,7 @@ func New() *Options {
 	pflag.Uint("threads", 1, "number of workers to spawn")
 	pflag.Uint("timeout", 45, "timeout (in seconds) for HTTP client")
 	pflag.Uint("retries", 0, "retries for HTTP client")
+	pflag.Uint("pages", 0, "max pages for provider")
 	pflag.String("proxy", "", "http proxy to use")
 	pflag.StringSlice("blacklist", []string{}, "list of extensions to skip")
 	pflag.StringSlice("providers", []string{}, "list of providers to use (wayback,commoncrawl,otx,urlscan)")
@@ -190,6 +193,7 @@ func (o *Options) getFlagValues(c *Config) {
 	outfile := o.viper.GetString("o")
 	fetchers := o.viper.GetStringSlice("providers")
 	threads := o.viper.GetUint("threads")
+	maxPages := o.viper.GetUint("pages")
 	blacklist := o.viper.GetStringSlice("blacklist")
 	subs := o.viper.GetBool("subs")
 	fp := o.viper.GetBool("fp")
@@ -235,6 +239,7 @@ func (o *Options) getFlagValues(c *Config) {
 
 	c.JSON = json
 	c.Verbose = verbose
+	c.Pages = maxPages
 
 	// get filter flags
 	mc := o.viper.GetStringSlice("mc")

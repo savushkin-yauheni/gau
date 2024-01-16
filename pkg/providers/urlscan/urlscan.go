@@ -38,7 +38,7 @@ func (c *Client) Fetch(ctx context.Context, domain string, results chan string) 
 		header.Key = "API-Key"
 		header.Value = c.config.URLScan.APIKey
 	}
-
+    max_pages := c.config.Pages
 	for page := uint(0); ; page++ {
 		select {
 		case <-ctx.Done():
@@ -80,6 +80,11 @@ func (c *Client) Fetch(ctx context.Context, domain string, results chan string) 
 			if !result.HasMore {
 				return nil
 			}
+
+
+			if max_pages != 0 && uint(page) >= max_pages - 1 {
+                return nil
+            }
 		}
 	}
 }

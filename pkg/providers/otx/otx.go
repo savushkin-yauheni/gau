@@ -46,6 +46,7 @@ func (c *Client) Name() string {
 }
 
 func (c *Client) Fetch(ctx context.Context, domain string, results chan string) error {
+    max_pages := c.config.Pages
 	for page := uint(1); ; page++ {
 		select {
 		case <-ctx.Done():
@@ -69,6 +70,10 @@ func (c *Client) Fetch(ctx context.Context, domain string, results chan string) 
 			if !result.HasNext {
 				return nil
 			}
+
+			if max_pages != 0 && uint(page) >= max_pages - 1 {
+                return nil
+            }
 		}
 	}
 }
